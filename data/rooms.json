@@ -1,0 +1,123 @@
+[
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "enkelrum",
+    "price_per_night": 500,
+    "max_number_of_people": 1,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+  {
+    "type": "dubbelrum",
+    "price_per_night": 1000,
+    "max_number_of_people": 2,
+    "occupied": false
+  },
+
+  {
+    "type": "svit",
+    "price_per_night": 1500,
+    "max_number_of_people": 3,
+    "occupied": false
+  },
+  {
+    "type": "svit",
+    "price_per_night": 1500,
+    "max_number_of_people": 3,
+    "occupied": false
+  },
+  {
+    "type": "svit",
+    "price_per_night": 1500,
+    "max_number_of_people": 3,
+    "occupied": false
+  },
+  {
+    "type": "svit",
+    "price_per_night": 1500,
+    "max_number_of_people": 3,
+    "occupied": false
+  },
+  {
+    "type": "svit",
+    "price_per_night": 1500,
+    "max_number_of_people": 3,
+    "occupied": false
+  },
+  {
+    "type": "svit",
+    "price_per_night": 1500,
+    "max_number_of_people": 3,
+    "occupied": false
+  }
+]
