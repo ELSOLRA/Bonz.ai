@@ -36,10 +36,10 @@ build:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: functions/LoadData/loadData.handler
     events:
       - httpApi:
-          path: /
+          path: /load
           method: get
 
 resources:
