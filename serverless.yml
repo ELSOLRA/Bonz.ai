@@ -6,6 +6,33 @@ service: Bonzai
 provider:
   name: aws
   runtime: nodejs20.x
+  region: eu-north-1
+  environment:
+    RUM_TABLE: ${self:service} - rum
+    ORDER_TABLE: ${self:service} - order
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            # - dynamodb:BatchWriteItem
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RUM_TABLE}
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}
+
+package:
+  individually: true
+
+build:
+  esbuild:
+    bundle: true
+    minify: true
 
 functions:
   hello:
@@ -14,3 +41,33 @@ functions:
       - httpApi:
           path: /
           method: get
+
+resources:
+  Resources:
+    RumsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.RUM_TABLE}
+        AttributeDefinitions:
+          - AttributeName: roomId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    OrderTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.ORDER_TABLE}
+        AttributeDefinitions:
+          - AttributeName: orderId
+            AttributeType: S
+          # - AttributeName: roomId
+          #   AttributeType: S
+        KeySchema:
+          - AttributeName: orderId
+            KeyType: HASH
+          # - AttributeName: roomId
+          #   KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST

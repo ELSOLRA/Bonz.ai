@@ -1,0 +1,123 @@
+[
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "enkelrum",
+    "pris_per_natt": 500,
+    "max_antal_personer": 1,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+  {
+    "typ": "dubbelrum",
+    "pris_per_natt": 1000,
+    "max_antal_personer": 2,
+    "ledig": true
+  },
+
+  {
+    "typ": "svit",
+    "pris_per_natt": 1500,
+    "max_antal_personer": 3,
+    "ledig": true
+  },
+  {
+    "typ": "svit",
+    "pris_per_natt": 1500,
+    "max_antal_personer": 3,
+    "ledig": true
+  },
+  {
+    "typ": "svit",
+    "pris_per_natt": 1500,
+    "max_antal_personer": 3,
+    "ledig": true
+  },
+  {
+    "typ": "svit",
+    "pris_per_natt": 1500,
+    "max_antal_personer": 3,
+    "ledig": true
+  },
+  {
+    "typ": "svit",
+    "pris_per_natt": 1500,
+    "max_antal_personer": 3,
+    "ledig": true
+  },
+  {
+    "typ": "svit",
+    "pris_per_natt": 1500,
+    "max_antal_personer": 3,
+    "ledig": true
+  }
+]
