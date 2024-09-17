@@ -47,6 +47,12 @@ functions:
       - httpApi:
           path: /book
           method: post
+  cancelOrder:
+    handler: functions/cancelOrder/cancelOrder.handler
+    events:
+      - httpApi:
+          path: /cancel
+          method: delete
 
 resources:
   Resources:
