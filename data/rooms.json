@@ -1,0 +1,23 @@
+[
+  {
+    "type": "single",
+    "price_per_night": 500,
+    "max_guests": 1,
+    "occupied": false,
+    "total": 10
+  },
+  {
+    "type": "double",
+    "price_per_night": 1000,
+    "max_guests": 2,
+    "occupied": false,
+    "total": 7
+  },
+  {
+    "type": "suite",
+    "price_per_night": 1500,
+    "max_guests": 3,
+    "occupied": false,
+    "total": 3
+  }
+]

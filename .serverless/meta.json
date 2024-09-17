@@ -1,0 +1,913 @@
+{
+  "C:\\Users\\LENOVO\\hotel-booking-api": {
+    "versionSfCore": null,
+    "versionFramework": "4.3.3",
+    "isWithinCompose": false,
+    "isCompose": false,
+    "composeOrgName": null,
+    "composeResolverProviders": {
+      "default-aws-credential-resolver": "<REDACTED>",
+      "self": {
+        "instance": {
+          "credentials": "<REDACTED>",
+          "serviceConfigFile": {
+            "service": "hotel-booking-api",
+            "provider": {
+              "name": "aws",
+              "runtime": "nodejs18.x",
+              "region": "eu-north-1",
+              "environment": {
+                "ROOM_TABLE": "hotel-booking-api-rooms",
+                "BOOKING_TABLE": "hotel-booking-api-bookings"
+              },
+              "stage": "dev",
+              "versionFunctions": true,
+              "compiledCloudFormationTemplate": {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "The AWS CloudFormation template for this Serverless application",
+                "Resources": {
+                  "BookRoomLogGroup": {
+                    "Type": "AWS::Logs::LogGroup",
+                    "Properties": {
+                      "LogGroupName": "/aws/lambda/hotel-booking-api-dev-bookRoom"
+                    }
+                  },
+                  "IamRoleLambdaExecution": {
+                    "Type": "AWS::IAM::Role",
+                    "Properties": {
+                      "AssumeRolePolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                          {
+                            "Effect": "Allow",
+                            "Principal": {
+                              "Service": [
+                                "lambda.amazonaws.com"
+                              ]
+                            },
+                            "Action": [
+                              "sts:AssumeRole"
+                            ]
+                          }
+                        ]
+                      },
+                      "Policies": [
+                        {
+                          "PolicyName": {
+                            "Fn::Join": [
+                              "-",
+                              [
+                                "hotel-booking-api",
+                                "dev",
+                                "lambda"
+                              ]
+                            ]
+                          },
+                          "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                              {
+                                "Effect": "Allow",
+                                "Action": [
+                                  "logs:CreateLogStream",
+                                  "logs:CreateLogGroup",
+                                  "logs:TagResource"
+                                ],
+                                "Resource": [
+                                  {
+                                    "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hotel-booking-api-dev*:*"
+                                  }
+                                ]
+                              },
+                              {
+                                "Effect": "Allow",
+                                "Action": [
+                                  "logs:PutLogEvents"
+                                ],
+                                "Resource": [
+                                  {
+                                    "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hotel-booking-api-dev*:*:*"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "Path": "/",
+                      "RoleName": {
+                        "Fn::Join": [
+                          "-",
+                          [
+                            "hotel-booking-api",
+                            "dev",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            "lambdaRole"
+                          ]
+                        ]
+                      }
+                    }
+                  },
+                  "BookRoomLambdaFunction": {
+                    "Type": "AWS::Lambda::Function",
+                    "Properties": {
+                      "Code": {
+                        "S3Bucket": "serverless-framework-deployments-eu-north-1-267cdd26-55f3",
+                        "S3Key": "serverless/hotel-booking-api/dev/1726553203715-2024-09-17T06:06:43.715Z/hotel-booking-api.zip"
+                      },
+                      "Handler": "functions/bookRoom.handler",
+                      "Runtime": "nodejs18.x",
+                      "FunctionName": "hotel-booking-api-dev-bookRoom",
+                      "MemorySize": 1024,
+                      "Timeout": 6,
+                      "Environment": {
+                        "Variables": {
+                          "ROOM_TABLE": "hotel-booking-api-rooms",
+                          "BOOKING_TABLE": "hotel-booking-api-bookings"
+                        }
+                      },
+                      "Role": {
+                        "Fn::GetAtt": [
+                          "IamRoleLambdaExecution",
+                          "Arn"
+                        ]
+                      }
+                    },
+                    "DependsOn": [
+                      "BookRoomLogGroup"
+                    ]
+                  },
+                  "BookRoomLambdaVersionreBu9YfMPeq3N32C75pbJOMVNbe5e5qiJ6RAbjrDQ": {
+                    "Type": "AWS::Lambda::Version",
+                    "DeletionPolicy": "Retain",
+                    "Properties": {
+                      "FunctionName": {
+                        "Ref": "BookRoomLambdaFunction"
+                      },
+                      "CodeSha256": "PcPm+9qu2D/nso9MyZx9BM2LFTRjpuVALKsiO8eXpd4="
+                    }
+                  },
+                  "ApiGatewayRestApi": {
+                    "Type": "AWS::ApiGateway::RestApi",
+                    "Properties": {
+                      "Name": "dev-hotel-booking-api",
+                      "EndpointConfiguration": {
+                        "Types": [
+                          "EDGE"
+                        ]
+                      },
+                      "Policy": ""
+                    }
+                  },
+                  "ApiGatewayResourceBookroom": {
+                    "Type": "AWS::ApiGateway::Resource",
+                    "Properties": {
+                      "ParentId": {
+                        "Fn::GetAtt": [
+                          "ApiGatewayRestApi",
+                          "RootResourceId"
+                        ]
+                      },
+                      "PathPart": "bookRoom",
+                      "RestApiId": {
+                        "Ref": "ApiGatewayRestApi"
+                      }
+                    }
+                  },
+                  "ApiGatewayMethodBookroomPost": {
+                    "Type": "AWS::ApiGateway::Method",
+                    "Properties": {
+                      "HttpMethod": "POST",
+                      "RequestParameters": {},
+                      "ResourceId": {
+                        "Ref": "ApiGatewayResourceBookroom"
+                      },
+                      "RestApiId": {
+                        "Ref": "ApiGatewayRestApi"
+                      },
+                      "ApiKeyRequired": "<REDACTED>",
+                      "AuthorizationType": "NONE",
+                      "Integration": {
+                        "IntegrationHttpMethod": "POST",
+                        "Type": "AWS_PROXY",
+                        "Uri": {
+                          "Fn::Join": [
+                            "",
+                            [
+                              "arn:",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              ":apigateway:",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              ":lambda:path/2015-03-31/functions/",
+                              {
+                                "Fn::GetAtt": [
+                                  "BookRoomLambdaFunction",
+                                  "Arn"
+                                ]
+                              },
+                              "/invocations"
+                            ]
+                          ]
+                        }
+                      },
+                      "MethodResponses": []
+                    },
+                    "DependsOn": [
+                      "BookRoomLambdaPermissionApiGateway"
+                    ]
+                  },
+                  "ApiGatewayDeployment1726553196121": {
+                    "Type": "AWS::ApiGateway::Deployment",
+                    "Properties": {
+                      "RestApiId": {
+                        "Ref": "ApiGatewayRestApi"
+                      },
+                      "StageName": "dev"
+                    },
+                    "DependsOn": [
+                      "ApiGatewayMethodBookroomPost"
+                    ]
+                  },
+                  "BookRoomLambdaPermissionApiGateway": {
+                    "Type": "AWS::Lambda::Permission",
+                    "Properties": {
+                      "FunctionName": {
+                        "Fn::GetAtt": [
+                          "BookRoomLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "Action": "lambda:InvokeFunction",
+                      "Principal": "apigateway.amazonaws.com",
+                      "SourceArn": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":execute-api:",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                              "Ref": "ApiGatewayRestApi"
+                            },
+                            "/*/*"
+                          ]
+                        ]
+                      }
+                    }
+                  },
+                  "RoomTable": {
+                    "Type": "AWS::DynamoDB::Table",
+                    "Properties": {
+                      "TableName": "hotel-booking-api-rooms",
+                      "AttributeDefinitions": [
+                        {
+                          "AttributeName": "roomId",
+                          "AttributeType": "S"
+                        }
+                      ],
+                      "KeySchema": [
+                        {
+                          "AttributeName": "roomId",
+                          "KeyType": "HASH"
+                        }
+                      ],
+                      "BillingMode": "PAY_PER_REQUEST"
+                    }
+                  },
+                  "BookingTable": {
+                    "Type": "AWS::DynamoDB::Table",
+                    "Properties": {
+                      "TableName": "hotel-booking-api-bookings",
+                      "AttributeDefinitions": [
+                        {
+                          "AttributeName": "bookingId",
+                          "AttributeType": "S"
+                        }
+                      ],
+                      "KeySchema": [
+                        {
+                          "AttributeName": "bookingId",
+                          "KeyType": "HASH"
+                        }
+                      ],
+                      "BillingMode": "PAY_PER_REQUEST"
+                    }
+                  }
+                },
+                "Outputs": {
+                  "ServerlessDeploymentBucketName": {
+                    "Value": "serverless-framework-deployments-eu-north-1-267cdd26-55f3",
+                    "Export": {
+                      "Name": "sls-hotel-booking-api-dev-ServerlessDeploymentBucketName"
+                    }
+                  },
+                  "BookRoomLambdaFunctionQualifiedArn": {
+                    "Description": "Current Lambda function version",
+                    "Value": {
+                      "Ref": "BookRoomLambdaVersionreBu9YfMPeq3N32C75pbJOMVNbe5e5qiJ6RAbjrDQ"
+                    },
+                    "Export": {
+                      "Name": "sls-hotel-booking-api-dev-BookRoomLambdaFunctionQualifiedArn"
+                    }
+                  },
+                  "ServiceEndpoint": {
+                    "Description": "URL of the service endpoint",
+                    "Value": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "https://",
+                          {
+                            "Ref": "ApiGatewayRestApi"
+                          },
+                          ".execute-api.",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          ".",
+                          {
+                            "Ref": "AWS::URLSuffix"
+                          },
+                          "/dev"
+                        ]
+                      ]
+                    },
+                    "Export": {
+                      "Name": "sls-hotel-booking-api-dev-ServiceEndpoint"
+                    }
+                  }
+                }
+              },
+              "vpc": {}
+            },
+            "functions": {
+              "bookRoom": {
+                "handler": "functions/bookRoom.handler",
+                "events": [
+                  {
+                    "http": {
+                      "path": "bookRoom",
+                      "method": "post",
+                      "integration": "AWS_PROXY"
+                    }
+                  }
+                ],
+                "name": "hotel-booking-api-dev-bookRoom",
+                "package": {},
+                "memory": 1024,
+                "timeout": 6,
+                "runtime": "nodejs18.x",
+                "vpc": {},
+                "versionLogicalId": "BookRoomLambdaVersionreBu9YfMPeq3N32C75pbJOMVNbe5e5qiJ6RAbjrDQ"
+              }
+            },
+            "resources": {
+              "Resources": {
+                "RoomTable": {
+                  "Type": "AWS::DynamoDB::Table",
+                  "Properties": {
+                    "TableName": "hotel-booking-api-rooms",
+                    "AttributeDefinitions": [
+                      {
+                        "AttributeName": "roomId",
+                        "AttributeType": "S"
+                      }
+                    ],
+                    "KeySchema": [
+                      {
+                        "AttributeName": "roomId",
+                        "KeyType": "HASH"
+                      }
+                    ],
+                    "BillingMode": "PAY_PER_REQUEST"
+                  }
+                },
+                "BookingTable": {
+                  "Type": "AWS::DynamoDB::Table",
+                  "Properties": {
+                    "TableName": "hotel-booking-api-bookings",
+                    "AttributeDefinitions": [
+                      {
+                        "AttributeName": "bookingId",
+                        "AttributeType": "S"
+                      }
+                    ],
+                    "KeySchema": [
+                      {
+                        "AttributeName": "bookingId",
+                        "KeyType": "HASH"
+                      }
+                    ],
+                    "BillingMode": "PAY_PER_REQUEST"
+                  }
+                }
+              },
+              "Outputs": {}
+            }
+          },
+          "configFileDirPath": "C:\\Users\\LENOVO\\hotel-booking-api",
+          "config": {
+            "type": "self"
+          },
+          "options": {},
+          "stage": "dev",
+          "dashboard": null,
+          "logger": {
+            "namespace": "s:core:resolver:self",
+            "prefix": null,
+            "prefixColor": null
+          },
+          "_credentialsPromise": "<REDACTED>"
+        },
+        "resolvers": {}
+      }
+    },
+    "composeServiceName": null,
+    "servicePath": "C:\\Users\\LENOVO\\hotel-booking-api",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "hotel-booking-api",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "eu-north-1",
+        "environment": {
+          "ROOM_TABLE": "hotel-booking-api-rooms",
+          "BOOKING_TABLE": "hotel-booking-api-bookings"
+        },
+        "stage": "dev",
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "BookRoomLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/hotel-booking-api-dev-bookRoom"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "hotel-booking-api",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hotel-booking-api-dev*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hotel-booking-api-dev*:*:*"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "hotel-booking-api",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "BookRoomLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-eu-north-1-267cdd26-55f3",
+                  "S3Key": "serverless/hotel-booking-api/dev/1726553203715-2024-09-17T06:06:43.715Z/hotel-booking-api.zip"
+                },
+                "Handler": "functions/bookRoom.handler",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "hotel-booking-api-dev-bookRoom",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Environment": {
+                  "Variables": {
+                    "ROOM_TABLE": "hotel-booking-api-rooms",
+                    "BOOKING_TABLE": "hotel-booking-api-bookings"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "BookRoomLogGroup"
+              ]
+            },
+            "BookRoomLambdaVersionreBu9YfMPeq3N32C75pbJOMVNbe5e5qiJ6RAbjrDQ": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "BookRoomLambdaFunction"
+                },
+                "CodeSha256": "PcPm+9qu2D/nso9MyZx9BM2LFTRjpuVALKsiO8eXpd4="
+              }
+            },
+            "ApiGatewayRestApi": {
+              "Type": "AWS::ApiGateway::RestApi",
+              "Properties": {
+                "Name": "dev-hotel-booking-api",
+                "EndpointConfiguration": {
+                  "Types": [
+                    "EDGE"
+                  ]
+                },
+                "Policy": ""
+              }
+            },
+            "ApiGatewayResourceBookroom": {
+              "Type": "AWS::ApiGateway::Resource",
+              "Properties": {
+                "ParentId": {
+                  "Fn::GetAtt": [
+                    "ApiGatewayRestApi",
+                    "RootResourceId"
+                  ]
+                },
+                "PathPart": "bookRoom",
+                "RestApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                }
+              }
+            },
+            "ApiGatewayMethodBookroomPost": {
+              "Type": "AWS::ApiGateway::Method",
+              "Properties": {
+                "HttpMethod": "POST",
+                "RequestParameters": {},
+                "ResourceId": {
+                  "Ref": "ApiGatewayResourceBookroom"
+                },
+                "RestApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                },
+                "ApiKeyRequired": "<REDACTED>",
+                "AuthorizationType": "NONE",
+                "Integration": {
+                  "IntegrationHttpMethod": "POST",
+                  "Type": "AWS_PROXY",
+                  "Uri": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":apigateway:",
+                        {
+                          "Ref": "AWS::Region"
+                        },
+                        ":lambda:path/2015-03-31/functions/",
+                        {
+                          "Fn::GetAtt": [
+                            "BookRoomLambdaFunction",
+                            "Arn"
+                          ]
+                        },
+                        "/invocations"
+                      ]
+                    ]
+                  }
+                },
+                "MethodResponses": []
+              },
+              "DependsOn": [
+                "BookRoomLambdaPermissionApiGateway"
+              ]
+            },
+            "ApiGatewayDeployment1726553196121": {
+              "Type": "AWS::ApiGateway::Deployment",
+              "Properties": {
+                "RestApiId": {
+                  "Ref": "ApiGatewayRestApi"
+                },
+                "StageName": "dev"
+              },
+              "DependsOn": [
+                "ApiGatewayMethodBookroomPost"
+              ]
+            },
+            "BookRoomLambdaPermissionApiGateway": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "BookRoomLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "ApiGatewayRestApi"
+                      },
+                      "/*/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "RoomTable": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "hotel-booking-api-rooms",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "roomId",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "roomId",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "BillingMode": "PAY_PER_REQUEST"
+              }
+            },
+            "BookingTable": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "hotel-booking-api-bookings",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "bookingId",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "bookingId",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "BillingMode": "PAY_PER_REQUEST"
+              }
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-eu-north-1-267cdd26-55f3",
+              "Export": {
+                "Name": "sls-hotel-booking-api-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "BookRoomLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "BookRoomLambdaVersionreBu9YfMPeq3N32C75pbJOMVNbe5e5qiJ6RAbjrDQ"
+              },
+              "Export": {
+                "Name": "sls-hotel-booking-api-dev-BookRoomLambdaFunctionQualifiedArn"
+              }
+            },
+            "ServiceEndpoint": {
+              "Description": "URL of the service endpoint",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "https://",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    ".execute-api.",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    },
+                    "/dev"
+                  ]
+                ]
+              },
+              "Export": {
+                "Name": "sls-hotel-booking-api-dev-ServiceEndpoint"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "functions": {
+        "bookRoom": {
+          "handler": "functions/bookRoom.handler",
+          "events": [
+            {
+              "http": {
+                "path": "bookRoom",
+                "method": "post",
+                "integration": "AWS_PROXY"
+              }
+            }
+          ],
+          "name": "hotel-booking-api-dev-bookRoom",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "BookRoomLambdaVersionreBu9YfMPeq3N32C75pbJOMVNbe5e5qiJ6RAbjrDQ"
+        }
+      },
+      "resources": {
+        "Resources": {
+          "RoomTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "hotel-booking-api-rooms",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "roomId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "roomId",
+                  "KeyType": "HASH"
+                }
+              ],
+              "BillingMode": "PAY_PER_REQUEST"
+            }
+          },
+          "BookingTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "hotel-booking-api-bookings",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "bookingId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "bookingId",
+                  "KeyType": "HASH"
+                }
+              ],
+              "BillingMode": "PAY_PER_REQUEST"
+            }
+          }
+        },
+        "Outputs": {}
+      }
+    },
+    "serviceRawFile": "service: hotel-booking-api\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs18.x\r\n  region: eu-north-1\r\n  environment:\r\n    ROOM_TABLE: ${self:service}-rooms\r\n    BOOKING_TABLE: ${self:service}-bookings\r\n\r\nfunctions:\r\n  bookRoom:\r\n    handler: functions/bookRoom.handler\r\n    events:\r\n      - http:\r\n          path: bookRoom\r\n          method: post\r\n\r\nresources:\r\n  Resources:\r\n    RoomTable:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: ${self:service}-rooms\r\n        AttributeDefinitions:\r\n          - AttributeName: roomId\r\n            AttributeType: S\r\n        KeySchema:\r\n          - AttributeName: roomId\r\n            KeyType: HASH\r\n        BillingMode: PAY_PER_REQUEST\r\n\r\n    BookingTable:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: ${self:service}-bookings\r\n        AttributeDefinitions:\r\n          - AttributeName: bookingId\r\n            AttributeType: S\r\n        KeySchema:\r\n          - AttributeName: bookingId\r\n            KeyType: HASH\r\n        BillingMode: PAY_PER_REQUEST\r\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "error": null,
+    "params": {},
+    "machineId": "65c8e3e517a6478279092c527770f6e6",
+    "stage": "dev",
+    "accessKeyV2": "<REDACTED>",
+    "accessKeyV1": "<REDACTED>",
+    "orgId": "5bf6b474-2ec4-4e26-a3e4-f5a24e8a8333",
+    "orgName": "noorganization31",
+    "userId": "VgJKKd81yvSdxxDtzp",
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "userName": "noorganization31",
+    "subscription": null,
+    "userEmail": "redafezazi1@gmail.com",
+    "serviceProviderAwsRegion": "eu-north-1",
+    "serviceProviderAwsCredentials": "<REDACTED>",
+    "serviceProviderAwsAccountId": "985539799465",
+    "projectType": "traditional",
+    "versionSf": "4.3.3",
+    "serviceProviderAwsCfStackName": "hotel-booking-api-dev",
+    "integrations": {},
+    "serviceUniqueId": "arn:aws:cloudformation:eu-north-1:985539799465:stack/hotel-booking-api-dev/680ecc30-74a9-11ef-a6f6-062738f8f3d3",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:eu-north-1:985539799465:stack/hotel-booking-api-dev/680ecc30-74a9-11ef-a6f6-062738f8f3d3",
+    "serviceProviderAwsCfStackCreated": "2024-09-17T04:00:42.042Z",
+    "serviceProviderAwsCfStackUpdated": "2024-09-17T06:06:52.734Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "BookRoomLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-north-1:985539799465:function:hotel-booking-api-dev-bookRoom:8",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-hotel-booking-api-dev-BookRoomLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://vwaori46m3.execute-api.eu-north-1.amazonaws.com/dev",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-hotel-booking-api-dev-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-eu-north-1-267cdd26-55f3",
+        "ExportName": "sls-hotel-booking-api-dev-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}

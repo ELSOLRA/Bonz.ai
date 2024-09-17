@@ -1,0 +1,21 @@
+{
+  "name": "hotel-booking-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "remove": "serverless remove"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless": "^4.3.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.651.1",
+    "@aws-sdk/lib-dynamodb": "^3.651.1",
+    "uuid": "^10.0.0"
+  }
+}

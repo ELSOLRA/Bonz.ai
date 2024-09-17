@@ -1,0 +1,43 @@
+service: hotel-booking-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+  environment:
+    ROOM_TABLE: ${self:service}-rooms
+    BOOKING_TABLE: ${self:service}-bookings
+
+functions:
+  bookRoom:
+    handler: functions/bookRoom.handler
+    events:
+      - http:
+          path: bookRoom
+          method: post
+
+resources:
+  Resources:
+    RoomTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-rooms
+        AttributeDefinitions:
+          - AttributeName: roomId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: roomId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    BookingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-bookings
+        AttributeDefinitions:
+          - AttributeName: bookingId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: bookingId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
