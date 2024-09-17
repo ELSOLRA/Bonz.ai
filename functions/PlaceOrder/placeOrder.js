@@ -43,10 +43,8 @@ exports.handler = async (event) => {
     ) {
       return apiResponse(400, { error: "Missing one or more required field" });
     }
-    if (checkIn.toISOString().split("T")[0].replace(/-/g, "")) {
-      //Do nothing if correct.
-    } else {
-      return apiResponse(400, { error: "Checkin date is wrong format, follow YYYYMMDD format" });
+    if (!/^\d{8}$/.test(checkIn)) {
+      return apiResponse(400, { error: "Check-in date is wrong format, use YYYYMMDD format" });
     }
   } catch (error) {}
 
