@@ -49,10 +49,10 @@ resources:
       Properties:
         TableName: ${self:provider.environment.RUM_TABLE}
         AttributeDefinitions:
-          - AttributeName: roomId
+          - AttributeName: type
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: type
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
 

@@ -2,6 +2,7 @@ const {} = require("@aws-sdk/lib-dynamodb");
 const db = require("../../services/db");
 const uuid = require("uuid");
 const { apiResponse } = require("../../utils/apiResponse");
+const { getRoomData } = require("../../services/getRoomData");
 
 // Antal gäster (se nedan för affärslogik kring rum)
 // Vilka rumstyper och antal (se nedan för affärslogik kring rum)
@@ -28,26 +29,84 @@ const { apiResponse } = require("../../utils/apiResponse");
 //     "namn": ""
 
 exports.handler = async (event) => {
-  const { roomId, name, checkIn, checkOut, guestAmount, roomAmount } = JSON.parse(event.body);
+  const data  = JSON.parse(event.body);
   const roomTable = process.env.RUM_TABLE;
+  const { name, checkIn, checkOut, guestAmount, types } = data;
+
+          if (Array.isArray(types)) {
+            types.forEach((typeObj, index) => {
+                const { type, roomAmount } = typeObj;
+            });
+        } else {
+            console.error("Types is not an array");
+            throw new Error("Invalid data format for types");
+        }
+
+      types.forEach((roomType, index) => {
+      console.log(`Room Type ${index + 1}:`, roomType.type);
+      console.log(`Room Amount ${index + 1}:`, roomType.roomAmount);
+    });
+
+
   try {
-    if (
-      !roomId ||
-      !name ||
-      !checkIn ||
-      !checkOut ||
-      !guestAmount ||
-      typeof guestAmount === !Number ||
-      !roomAmount ||
-      typeof roomAmount === !Number
-    ) {
-      return apiResponse(400, { error: "Missing one or more required field" });
+    for (const room of rooms){
+      if (
+        !room.type ||
+        !room.name ||
+        !room.checkIn ||
+        !room.checkOut ||
+        !room.guestAmount ||
+        typeof room.guestAmount === !Number ||
+        !room.roomAmount ||
+        typeof room.roomAmount === !Number
+      ) {
+        return apiResponse(400, { error: "Missing one or more required fields" });
+      }
+      const roomType = await getRoomData(room.type)
+      if (!roomType) {
+        return apiResponse(400, { error:'Invalid room type, '})
+      }
     }
-    if (checkIn.toISOString().split("T")[0].replace(/-/g, "")) {
-      //Do nothing if correct.
-    } else {
-      return apiResponse(400, { error: "Checkin date is wrong format, follow YYYYMMDD format" });
+
+    // ---------------------------------------------------------------------------------
+
+    function isValidBooking(guestCount, roomTypes) {
+  let capacity = 0;
+  for (const [type, count] of Object.entries(roomTypes)) {
+    switch (type) {
+      case 'single':
+        capacity += count * 1;
+        break;
+      case 'double':
+        capacity += count * 2;
+        break;
+      case 'suite':
+        capacity += count * 3;
+        break;
+      default:
+        return false;
     }
+  }
+  return capacity >= guestCount;
+}
+
+
+    // ----------------------------------------------------------------------------------
+  
+    // if (data.type !== 'enkelrum' && data.type !== 'dubbelrum' && data.type !== 'svit') {
+    //   return
+    // }
+    
+    const room = rooms.find((r) => r.type === roomType);
+
+    if (!room || guests > room.max_guests) {
+      return apiResponse(400, {
+        success: false,
+        message: "Invalid room type or too many guests",
+      });
+    }
+    
+    
   } catch (error) {}
 
   const putParams = {
@@ -57,8 +116,10 @@ exports.handler = async (event) => {
       checkIn: checkIn,
       checkOut: checkOut,
       guestAmount: guestAmount,
-      roomAmount: roomAmount,
-      createdAt: new Date().toISOString().split("T")[0].replace(/-/g, ""),
+      amountOfRooms: amountOfRooms,
+      total_sum: total_sum,
+      name: questName,
+      /* createdAt: new Date().toISOString().split("T")[0].replace(/-/g, ""), */
     },
   };
 
