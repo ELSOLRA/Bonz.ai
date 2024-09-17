@@ -5,9 +5,22 @@ const { PutCommand } = require("@aws-sdk/lib-dynamodb");
 const { apiResponse } = require("../../utils/apiResponse");
 
 exports.handler = async (event) => {
-  const roomTable = process.env.RUM_TABLE;
+  const roomTable = process.env.ROOM_TABLE;
   // const roomId = uuid.v4();
   try {
+
+    for (const rooms of roomsData){
+      await db.send(new PutCommand({
+          TableName: roomTable,
+          Item: {
+            type: rooms.type,
+            price_per_night: rooms.price_per_night,
+            max_number_of_people: rooms.max_guests,
+            total: rooms.total,
+          },
+          }))
+        }
+    /*
     const putParams = roomsData.map((item) => ({
       putRequest: {
         TableName: roomTable,
@@ -19,8 +32,8 @@ exports.handler = async (event) => {
         },
       },
     }));
-
-    await db.send(new PutCommand(putParams));
+*/
+    //await db.send(new PutCommand(putParams));
     return apiResponse(201, {
       success: true,
       message: "data loaded successfully",

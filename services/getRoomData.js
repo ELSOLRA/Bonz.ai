@@ -3,7 +3,7 @@ const db = require("./db");
 
 exports.getRoomData = async (type) => {
   const params = {
-    TableName: process.env.RUM_TABLE,  
+    TableName: process.env.ROOM_TABLE,  
     Key: {
       type: type  
     }

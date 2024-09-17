@@ -1,5 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: elsolra
+org: tobiasa123
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: Bonzai
 
@@ -8,8 +8,8 @@ provider:
   runtime: nodejs20.x
   region: eu-north-1
   environment:
-    RUM_TABLE: ${self:service} - rum
-    ORDER_TABLE: ${self:service} - order
+    ROOM_TABLE: ${self:service}-rum
+    ORDER_TABLE: ${self:service}-order
   iam:
     role:
       statements:
@@ -23,7 +23,7 @@ provider:
             - dynamodb:DeleteItem
             # - dynamodb:BatchWriteItem
           Resource:
-            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RUM_TABLE}
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ROOM_TABLE}
             - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}
 
 package:
@@ -35,19 +35,25 @@ build:
     minify: true
 
 functions:
-  hello:
+  LoadData:
     handler: functions/LoadData/loadData.handler
     events:
       - httpApi:
           path: /load
-          method: get
+          method: post
+  PlaceOrder:
+    handler: functions/PlaceOrder/placeOrder.handler
+    events:
+      - httpApi:
+          path: /book
+          method: post
 
 resources:
   Resources:
-    RumsTable:
+    RoomTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.RUM_TABLE}
+        TableName: ${self:provider.environment.ROOM_TABLE}
         AttributeDefinitions:
           - AttributeName: type
             AttributeType: S

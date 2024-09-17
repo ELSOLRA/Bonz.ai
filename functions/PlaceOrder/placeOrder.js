@@ -1,8 +1,9 @@
-const {} = require("@aws-sdk/lib-dynamodb");
+const { PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const db = require("../../services/db");
 const uuid = require("uuid");
 const { apiResponse } = require("../../utils/apiResponse");
 const { getRoomData } = require("../../services/getRoomData");
+const { parseCheckInDate, parseCheckOutDate, nightsBetweenDates } = require("../../services/timeService");
 
 // Antal gäster (se nedan för affärslogik kring rum)
 // Vilka rumstyper och antal (se nedan för affärslogik kring rum)
@@ -29,66 +30,117 @@ const { getRoomData } = require("../../services/getRoomData");
 //     "namn": ""
 
 exports.handler = async (event) => {
-  const data  = JSON.parse(event.body);
-  const roomTable = process.env.RUM_TABLE;
-  const { name, checkIn, checkOut, guestAmount, types } = data;
-
-          if (Array.isArray(types)) {
-            types.forEach((typeObj, index) => {
-                const { type, roomAmount } = typeObj;
-            });
-        } else {
-            console.error("Types is not an array");
-            throw new Error("Invalid data format for types");
-        }
-
-      types.forEach((roomType, index) => {
-      console.log(`Room Type ${index + 1}:`, roomType.type);
-      console.log(`Room Amount ${index + 1}:`, roomType.roomAmount);
-    });
-
-
   try {
-    for (const room of rooms){
-      if (
-        !room.type ||
-        !room.name ||
-        !room.checkIn ||
-        !room.checkOut ||
-        !room.guestAmount ||
-        typeof room.guestAmount === !Number ||
-        !room.roomAmount ||
-        typeof room.roomAmount === !Number
-      ) {
-        return apiResponse(400, { error: "Missing one or more required fields" });
+    
+  const { name, checkIn, checkOut, guestAmount, types } = JSON.parse(event.body);
+  const roomTable = process.env.ROOM_TABLE;
+  const orderTable = process.env.ORDER_TABLE;
+
+    console.log( 'body object:--------------',name, checkIn, checkOut, guestAmount, types );
+    
+    let totalCapacity = 0;
+    let totalPrice = 0;
+    const bookingDetails = [];
+    const roomUpdates = [];
+
+    const checkInDate = new Date(parseCheckInDate(checkIn));
+    console.log('checkInDate-------', checkInDate );
+    
+    const checkOutDate = new Date(parseCheckOutDate(checkOut));
+ console.log('checkOutDate-------', checkOutDate )
+
+    const nights = nightsBetweenDates(checkInDate, checkOutDate)
+    
+
+      for (const roomType of types) {
+      const roomData = await getRoomData(roomType.type);
+      
+      if (!roomData || !roomType.roomAmount) {
+        throw new Error(`Invalid room type - ${roomType.type}, or no amount provided`);
       }
-      const roomType = await getRoomData(room.type)
-      if (!roomType) {
-        return apiResponse(400, { error:'Invalid room type, '})
+
+      if (roomData.total < roomType.roomAmount) {
+        throw new Error(`Not enough ${roomType.type} available. Requested: ${roomType.roomAmount}, Available: ${roomData.total}`);
       }
+
+      totalCapacity += roomData.max_guests * roomType.roomAmount;
+      const roomTypePrice = roomData.price_per_night * roomType.roomAmount * nights;
+      totalPrice += roomTypePrice;
+
+      bookingDetails.push({
+        type: roomType.type,
+        amount: roomType.roomAmount,
+        pricePerNight: roomData.price_per_night,
+        totalPrice: roomTypePrice
+      });
+
+      roomUpdates.push({
+        type: roomType.type,
+        newTotal: roomData.total - roomType.roomAmount
+      });
+        }
+      if (totalCapacity < guestAmount) {
+      throw new Error(`Not enough capacity. Booked capacity: ${totalCapacity}, Guests: ${guestAmount}`);
+      }
+        const bookingId = uuid.v4();
+    const newBooking = {
+      id: bookingId,
+      name,
+      checkIn,
+      checkOut,
+      nights,
+      guestAmount,
+      totalCapacity,
+      totalPrice,
+      bookingDetails
+    };
+
+    await db.send(new PutCommand({
+      TableName: orderTable,
+      Item: newBooking
+    }));
+
+        for (const update of roomUpdates) {
+      await db.send(new UpdateCommand({
+        TableName: roomTable,
+        Key: { type: update.type },
+        UpdateExpression: 'SET total = :newTotal',
+        ExpressionAttributeValues: { ':newTotal': update.newTotal }
+      }));
     }
+    
+return apiResponse(200, { message: "Booking received successfully", bookingId, ...newBooking }) 
+    // for (const room of rooms){
+    //   if (
+    //     !room.type ||
+    //     !room.name ||
+    //     !room.checkIn ||
+    //     !room.checkOut ||
+    //     !room.guestAmount ||
+    //     typeof room.guestAmount === !Number ||
+    //     !room.roomAmount ||
+    //     typeof room.roomAmount === !Number
+    //   ) {
+    //     return apiResponse(400, { error: "Missing one or more required fields" });
+    //   }
+    //   const roomType = await getRoomData(room.type)
+    //   if (!roomType) {
+    //     return apiResponse(400, { error:'Invalid room type, '})
+    //   }
+    // }
 
     // ---------------------------------------------------------------------------------
 
-    function isValidBooking(guestCount, roomTypes) {
-  let capacity = 0;
-  for (const [type, count] of Object.entries(roomTypes)) {
-    switch (type) {
-      case 'single':
-        capacity += count * 1;
-        break;
-      case 'double':
-        capacity += count * 2;
-        break;
-      case 'suite':
-        capacity += count * 3;
-        break;
-      default:
-        return false;
-    }
+
+ } catch (error) {
+    console.error("Error processing booking:", error);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: error.message }),
+    };
   }
-  return capacity >= guestCount;
-}
+};
+
 
 
     // ----------------------------------------------------------------------------------
@@ -97,31 +149,24 @@ exports.handler = async (event) => {
     //   return
     // }
     
-    const room = rooms.find((r) => r.type === roomType);
 
-    if (!room || guests > room.max_guests) {
-      return apiResponse(400, {
-        success: false,
-        message: "Invalid room type or too many guests",
-      });
-    }
     
     
-  } catch (error) {}
+ 
 
-  const putParams = {
-    TableName: roomTable,
-    Item: {
-      Bookingsnumber: uuid.v4(),
-      checkIn: checkIn,
-      checkOut: checkOut,
-      guestAmount: guestAmount,
-      amountOfRooms: amountOfRooms,
-      total_sum: total_sum,
-      name: questName,
-      /* createdAt: new Date().toISOString().split("T")[0].replace(/-/g, ""), */
-    },
-  };
+  // const putParams = {
+  //   TableName: roomTable,
+  //   Item: {
+  //     Bookingsnumber: uuid.v4(),
+  //     checkIn: checkIn,
+  //     checkOut: checkOut,
+  //     guestAmount: guestAmount,
+  //     amountOfRooms: amountOfRooms,
+  //     total_sum: total_sum,
+  //     name: questName,
+  //     /* createdAt: new Date().toISOString().split("T")[0].replace(/-/g, ""), */
+  //   },
+  // };
 
   //   const params = {
   //     TableName: process.env.TABLE_NAME,
@@ -130,4 +175,4 @@ exports.handler = async (event) => {
   //     },
   //   };
   // const result = await db.send(new GetCommand(params));
-};
+// };
