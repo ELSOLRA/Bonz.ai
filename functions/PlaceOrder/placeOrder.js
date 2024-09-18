@@ -186,10 +186,7 @@ exports.handler = async (event) => {
     // ---------------------------------------------------------------------------------
   } catch (error) {
     console.error("Error processing booking:", error);
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: error.message }),
-    };
+    return apiResponse(400, { error: error.message });
   }
 };
 
