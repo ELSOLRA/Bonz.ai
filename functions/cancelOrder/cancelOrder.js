@@ -1,5 +1,6 @@
 const db = require("../../services/db.js");
 const { DeleteCommand } = require("@aws-sdk/lib-dynamodb");
+const { apiResponse } = require("../../utils/apiResponse.js");
 
 exports.cancelOrder = async (event) => {
   const orderTable = process.env.ORDER_TABLE;
@@ -10,24 +11,18 @@ exports.cancelOrder = async (event) => {
   };
 
   try {
-    let result = await db.send(
+    let response = await db.send(
       new DeleteCommand({
         TableName: orderTable,
         Item: deleteParams,
       }),
     );
-    if (result) {
+    if (response) {
       return apiResponse(200, { message: "Booking canceled successfully." });
     } else {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: "Booking not canceled." }),
-      };
+      return apiResponse(400, { message: "Booking not canceled." });
     }
   } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
-    };
+    return apiResponse(500, { error: error.message });
   }
 };

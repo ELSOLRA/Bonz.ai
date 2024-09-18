@@ -1,5 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: tobiasa123
+org: cloud-user
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: Bonzai
 
@@ -47,12 +47,12 @@ functions:
       - httpApi:
           path: /book
           method: post
-  cancelOrder:
+  CancelOrder:
     handler: functions/cancelOrder/cancelOrder.handler
     events:
       - httpApi:
           path: /cancel
-          method: delete
+          method: del
 
 resources:
   Resources:
