@@ -24,25 +24,45 @@ exports.handler = async (event) => {
     }
 
     const roomUpdates = [];
-    const existingRoomTypes = new Map(existingOrder.rooms.map(r => [r.type, r.amount]));
+    const existingRoomTypes = new Map(existingOrder.rooms.map(r => [r.type, r.roomAmount]));
+    const updatedRoomTypes = new Map(rooms.map(r => [r.type, r.roomAmount]));
     let totalPrice = 0;
     const nights = nightsBetweenDates(checkInDate, checkOutDate);
 
-    for (const roomType of rooms) {
-      const currentAmount = existingRoomTypes.get(roomType.type) || 0;
-      const difference = roomType.roomAmount - currentAmount;
+    for (const [type, updatedAmount] of updatedRoomTypes) {
+      const currentAmount = existingRoomTypes.get(type) || 0;
+      const difference = updatedAmount - currentAmount;
 
-      const roomData = await getRoomData(roomType.type);
+      const roomData = await getRoomData(type);
       if (!roomData) {
-        throw new Error(`Room data not found for type: ${roomType.type}`);
+        throw new Error(`Room data not found for type: ${type}`);
       }
 
-      totalPrice += roomData.price_per_night * roomType.roomAmount * nights;
+      totalPrice += roomData.price_per_night * updatedAmount * nights;
+
+      const newTotal = roomData.total - difference;
 
       roomUpdates.push({
-        type: roomType.type,
-        newTotal: roomData.total - difference,
+        type,
+        newTotal,
+        difference 
       });
+    }
+
+    for (const [type, existingAmount] of existingRoomTypes) {
+      if (!updatedRoomTypes.has(type)) {
+        const roomData = await getRoomData(type);
+        if (!roomData) {
+          throw new Error(`Room data not found for type: ${type}`);
+        }
+
+        const difference = -existingAmount;
+        roomUpdates.push({
+          type,
+          newTotal: roomData.total - difference, 
+          difference 
+        });
+      }
     }
 
     const updateParams = {
@@ -61,13 +81,17 @@ exports.handler = async (event) => {
 
     const updatedResult = await db.send(new UpdateCommand(updateParams));
     
+
     for (const update of roomUpdates) {
+      const { type, difference } = update;
+
+
       await db.send(new UpdateCommand({
         TableName: roomTable,
-        Key: { type: update.type },
-        UpdateExpression: "SET #total = :newTotal",
+        Key: { type }, 
+        UpdateExpression: "SET #total = #total + :difference",
         ExpressionAttributeNames: { "#total": "total" },
-        ExpressionAttributeValues: { ":newTotal": update.newTotal },
+        ExpressionAttributeValues: { ":difference": difference },
       }));
     }
 
