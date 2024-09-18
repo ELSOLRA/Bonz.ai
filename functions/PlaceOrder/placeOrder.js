@@ -46,10 +46,10 @@ exports.handler = async (event) => {
     const bookingDetails = [];
     const roomUpdates = [];
 
-    const checkInDate = new Date(parseCheckInDate(checkIn));
+    const checkInDate = parseCheckInDate(checkIn);
     console.log("checkInDate-------", checkInDate);
 
-    const checkOutDate = new Date(parseCheckOutDate(checkOut));
+    const checkOutDate = parseCheckOutDate(checkOut);
     console.log("checkOutDate-------", checkOutDate);
 
     const nights = nightsBetweenDates(checkInDate, checkOutDate);
@@ -80,7 +80,14 @@ exports.handler = async (event) => {
       console.log(`Capacity increment for ${roomType.type}:`, capacityIncrement);
       totalCapacity += capacityIncrement;
       const roomTypePrice = roomData.price_per_night * roomType.roomAmount * nights;
+      console.log("roomTypePrice------------------", roomTypePrice);
+      console.log("nights------------------", nights);
+      console.log("roomData.price_per_night---------", roomData.price_per_night);
+      console.log("roomType.roomAmount---------", roomType.roomAmount);
+
       totalPrice += roomTypePrice;
+
+      console.log("totalPrice------------------", totalPrice);
 
       bookingDetails.push({
         type: roomType.type,
@@ -107,14 +114,22 @@ exports.handler = async (event) => {
     const newBooking = {
       orderId,
       name,
-      checkIn,
-      checkOut,
-      nights,
+      checkInDate,
+      checkOutDate,
+      // nights,
       guestAmount,
-      totalCapacity,
+      // totalCapacity,
       totalPrice,
-      bookingDetails,
+      rooms: bookingDetails.map((room) => ({
+        type: room.type,
+        amount: room.amount,
+      })),
     };
+    //     Bokningsnummer
+    // Antalet gäster och rum
+    // Total summa att betala
+    // In-och utcheckningsdatum
+    // Namn på gästen som bokat
 
     console.log("Before creating newBooking:");
     console.log("bookingId:", orderId);
