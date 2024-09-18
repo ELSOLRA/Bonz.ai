@@ -1,5 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: randtest
+org: tobiasa123
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: Bonzai
 
@@ -69,7 +69,7 @@ functions:
     handler: functions/ChangeOrder/changeOrder.handler
     events:
       - httpApi:
-          path: /orders
+          path: /orders/{orderId}
           method: post
 
 resources:
