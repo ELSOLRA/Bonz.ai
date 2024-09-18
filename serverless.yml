@@ -59,6 +59,18 @@ functions:
       - httpApi:
           path: /orders
           method: get
+  GetOrder:
+    handler: functions/GetOrder/getOrder.handler
+    events:
+      - httpApi:
+          path: /orders/{orderId}
+          method: get
+  ChangeOrder:
+    handler: functions/ChangeOrder/changeOrder.handler
+    events:
+      - httpApi:
+          path: /orders
+          method: post
 
 resources:
   Resources:
