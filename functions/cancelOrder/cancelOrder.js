@@ -1,19 +1,14 @@
 const db = require("../../services/db.js");
-const { DeleteCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
+const { DeleteCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { apiResponse } = require("../../utils/apiResponse.js");
-const { nightsBetweenDates, parseCheckInDate } = require("../../services/timeService");
+const { nightsBetweenDates } = require("../../services/timeService");
 
 exports.handler = async (event) => {
   const orderTable = process.env.ORDER_TABLE;
+  const roomTable = process.env.ROOM_TABLE;
   const { id } = JSON.parse(event.body);
-  console.log("id", id);
-  const Params = {
-    id: `${id}`,
-  };
 
   try {
-    let cancelDate = new Date().toISOString();
-    console.log("cancelDate", cancelDate);
     let room = await db.send(
       new GetCommand({
         TableName: orderTable,
@@ -22,24 +17,41 @@ exports.handler = async (event) => {
         },
       }),
     );
-    console.log("room", room);
 
-    console.log("room.checkIn", room.Item.checkInDate);
-    let nights = nightsBetweenDates(cancelDate, room.Item.checkInDate);
-    console.log("nights", nights);
+    const { checkInDate, rooms } = room.Item;
+
+    let cancelDate = new Date().toISOString();
+
+    let nights = nightsBetweenDates(cancelDate, checkInDate);
+
     if (nights < 2) {
       return apiResponse(200, {
         message: "The booking cannot be canceled, less than two days before checkout date.",
       });
     }
 
+    for (const bookedRooms of rooms) {
+      const { type, amount } = bookedRooms;
+      await db.send(
+        new UpdateCommand({
+          TableName: roomTable,
+          Key: { type },
+          UpdateExpression: "SET #total =  #total + :amount",
+          ExpressionAttributeNames: { "#total": "total" },
+          ExpressionAttributeValues: { ":amount": amount },
+        }),
+      );
+    }
+
     let response = await db.send(
       new DeleteCommand({
         TableName: orderTable,
-        Item: Params,
+        Key: {
+          orderId: id,
+        },
       }),
     );
-    console.log(" response", nights);
+
     if (response) {
       return apiResponse(200, { message: "Booking canceled successfully." });
     } else {

@@ -1,5 +1,6 @@
 const db = require("../../services/db.js");
 const { apiResponse } = require("../../utils/apiResponse.js");
+const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
 
 exports.handler = async (event) => {
   const orderTable = process.env.ORDER_TABLE;
