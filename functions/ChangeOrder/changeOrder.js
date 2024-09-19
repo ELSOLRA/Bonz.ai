@@ -34,7 +34,7 @@ exports.handler = async (event) => {
 
     const roomsInOrder = order.Item.rooms;
 
-    const updatedRooms = roomsInOrder.map((existingRoom) => {
+    let updatedRooms = roomsInOrder.map((existingRoom) => {
       const updatedRoom = rooms.find((r) => r.type === existingRoom.type);
       if (updatedRoom) {
         return { ...existingRoom, amount: updatedRoom.amount };
@@ -48,8 +48,14 @@ exports.handler = async (event) => {
       }
     });
 
+    const removedRooms = roomsInOrder.filter(
+      (existingRoom) => !rooms.some((r) => r.type === existingRoom.type && r.amount > 0),
+    );
+
     // const roomsFound = roomsInOrder.filter((r) => r.type !== rooms.type);
     // console.log("roomsFound--------:", roomsFound);
+
+    updatedRooms = updatedRooms.filter((room) => room.amount > 0);
 
     const nights = nightsBetweenDates(
       parseCheckInDate(checkInDate),
@@ -97,6 +103,21 @@ exports.handler = async (event) => {
           newTotal: changedTotal,
         });
       }
+    }
+
+    for (const removedRoom of removedRooms) {
+      const roomData = await getRoomData(removedRoom.type);
+
+      if (!roomData) {
+        throw new Error(`${removedRoom.type} - no such type of room in database`);
+      }
+
+      const increaseTotal = roomData.total + removedRoom.amount;
+
+      roomUpdates.push({
+        type: removedRoom.type,
+        newTotal: increaseTotal,
+      });
     }
     /*     const removedRoomTypes = existingRooms.filter(
       (r) => !rooms.find((room) => room.type === r.type),
