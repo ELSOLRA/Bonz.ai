@@ -1,7 +1,7 @@
 const db = require("../../services/db.js");
 const { DeleteCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { apiResponse } = require("../../utils/apiResponse.js");
-const { nightsBetweenDates } = require("../../services/timeService");
+const { nightsBetweenDates } = require("../../services/timeService.js");
 
 exports.handler = async (event) => {
   const orderTable = process.env.ORDER_TABLE;
@@ -20,7 +20,11 @@ exports.handler = async (event) => {
 
     const { checkInDate, rooms } = room.Item;
 
+    console.log("checkInDate ----:", checkInDate);
+
     let cancelDate = new Date().toISOString();
+
+    console.log("cancleDate-----:", cancelDate);
 
     let nights = nightsBetweenDates(cancelDate, checkInDate);
 
