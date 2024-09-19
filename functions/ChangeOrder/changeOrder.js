@@ -62,16 +62,21 @@ exports.handler = async (event) => {
     const roomUpdates = [];
 
     for (const room of updatedRooms) {
+      const roomData = await getRoomData(room.type);
+
+      if (!roomData || !room.amount) {
+        throw new Error(`Invalid room type - ${room.type}, or no amount provided`);
+      }
+      const capacityCount = roomData.max_guests * room.amount;
+      totalCapacity += capacityCount;
+
+      const roomTypePrice = roomData.price_per_night * room.amount * nights;
+      totalPrice += roomTypePrice;
+
       const orderRoomAmount = roomsInOrder.find((r) => r.type === room.type)?.amount || 0;
       const roomAmountDiff = room.amount - orderRoomAmount;
 
       if (roomAmountDiff !== 0) {
-        const roomData = await getRoomData(room.type);
-
-        if (!roomData || !room.amount) {
-          throw new Error(`Invalid room type - ${room.type}, or no amount provided`);
-        }
-
         const changedTotal = roomData.total - roomAmountDiff;
 
         if (changedTotal < 0) {
@@ -79,12 +84,6 @@ exports.handler = async (event) => {
             `Not enough ${room.type} available. Requested more: ${roomAmountDiff}, Available: ${roomData.total}`,
           );
         }
-
-        const capacityCount = roomData.max_guests * room.amount;
-        totalCapacity += capacityCount;
-
-        const roomTypePrice = roomData.price_per_night * room.amount * nights;
-        totalPrice += roomTypePrice;
 
         /*       bookingDetails.push({
           type: room.type,
