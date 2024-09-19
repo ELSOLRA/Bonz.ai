@@ -8,6 +8,7 @@ const {
   parseCheckOutDate,
   nightsBetweenDates,
 } = require("../../services/timeService");
+const { validateOrder } = require("../../services/validateData")
 
 // Antal gäster (se nedan för affärslogik kring rum)
 // Vilka rumstyper och antal (se nedan för affärslogik kring rum)
@@ -36,6 +37,10 @@ const {
 exports.handler = async (event) => {
   try {
     const { name, checkIn, checkOut, guestAmount, types } = JSON.parse(event.body);
+
+    //validera order
+    validateOrder(name, checkIn, checkOut, guestAmount, types);
+
     const roomTable = process.env.ROOM_TABLE;
     const orderTable = process.env.ORDER_TABLE;
 
@@ -186,10 +191,7 @@ exports.handler = async (event) => {
     // ---------------------------------------------------------------------------------
   } catch (error) {
     console.error("Error processing booking:", error);
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: error.message }),
-    };
+    return apiResponse(400, { error: error.message });
   }
 };
 
