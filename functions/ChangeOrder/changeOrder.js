@@ -19,6 +19,10 @@ exports.handler = async (event) => {
   const { guestAmount, rooms, checkInDate, checkOutDate } = JSON.parse(event.body);
 
   try {
+    const parsedCheckInDate = parseCheckInDate(checkInDate);
+    const parsedCheckOutDate = parseCheckOutDate(checkOutDate);
+    const nights = nightsBetweenDates(parsedCheckInDate, parsedCheckOutDate);
+
     const params = {
       TableName: orderTable,
       Key: {
@@ -34,115 +38,67 @@ exports.handler = async (event) => {
 
     const roomsInOrder = order.Item.rooms;
 
-    let updatedRooms = roomsInOrder.map((existingRoom) => {
-      const updatedRoom = rooms.find((r) => r.type === existingRoom.type);
-      if (updatedRoom) {
-        return { ...existingRoom, amount: updatedRoom.amount };
-      }
-      return existingRoom;
-    });
+    let updatedRooms = [...roomsInOrder];
 
-    rooms.forEach((newRoom) => {
-      if (!updatedRooms.some((r) => r.type === newRoom.type)) {
-        updatedRooms.push(newRoom);
-      }
-    });
-
-    const removedRooms = roomsInOrder.filter(
-      (existingRoom) => !rooms.some((r) => r.type === existingRoom.type && r.amount > 0),
-    );
-
-    // const roomsFound = roomsInOrder.filter((r) => r.type !== rooms.type);
-    // console.log("roomsFound--------:", roomsFound);
-
-    updatedRooms = updatedRooms.filter((room) => room.amount > 0);
-
-    const nights = nightsBetweenDates(
-      parseCheckInDate(checkInDate),
-      parseCheckOutDate(checkOutDate),
-    );
-
-    let totalCapacity = 0;
-    let totalPrice = 0;
-    // const bookingDetails = [];
     const roomUpdates = [];
 
-    for (const room of updatedRooms) {
-      const roomData = await getRoomData(room.type);
+    for (const newRoom of rooms) {
+      const existingRoomIndex = updatedRooms.findIndex((r) => r.type === newRoom.type);
 
-      if (!roomData || !room.amount) {
-        throw new Error(`Invalid room type - ${room.type}, or no amount provided`);
-      }
-      const capacityCount = roomData.max_guests * room.amount;
-      totalCapacity += capacityCount;
+      if (existingRoomIndex !== -1) {
+        // if room type exists in the order we update its amount
+        const existingRoom = updatedRooms[existingRoomIndex];
+        const amountDiff = newRoom.amount - existingRoom.amount;
 
-      const roomTypePrice = roomData.price_per_night * room.amount * nights;
-      totalPrice += roomTypePrice;
+        if (amountDiff !== 0) {
+          const roomData = await getRoomData(newRoom.type);
+          const newTotal = roomData.total - amountDiff;
 
-      const orderRoomAmount = roomsInOrder.find((r) => r.type === room.type)?.amount || 0;
-      const roomAmountDiff = room.amount - orderRoomAmount;
+          if (newTotal < 0) {
+            throw new Error(
+              `Not enough ${newRoom.type} available. Requested change: ${amountDiff}, Available: ${roomData.total}`,
+            );
+          }
 
-      if (roomAmountDiff !== 0) {
-        const changedTotal = roomData.total - roomAmountDiff;
+          updatedRooms[existingRoomIndex].amount = newRoom.amount;
 
-        if (changedTotal < 0) {
+          roomUpdates.push({
+            type: newRoom.type,
+            newTotal: newTotal,
+          });
+        }
+      } else {
+        // if neew room type, we add it to the order
+        const roomData = await getRoomData(newRoom.type);
+        const newTotal = roomData.total - newRoom.amount;
+
+        if (newTotal < 0) {
           throw new Error(
-            `Not enough ${room.type} available. Requested more: ${roomAmountDiff}, Available: ${roomData.total}`,
+            `Not enough ${newRoom.type} available. Requested: ${newRoom.amount}, Available: ${roomData.total}`,
           );
         }
 
-        /*       bookingDetails.push({
-          type: room.type,
-          amount: room.amount,
-          pricePerNight: roomData.price_per_night,
-          totalPrice: roomTypePrice,
-        }); */
+        updatedRooms.push(newRoom);
 
         roomUpdates.push({
-          type: room.type,
-          newTotal: changedTotal,
+          type: newRoom.type,
+          newTotal: newTotal,
         });
       }
     }
 
-    for (const removedRoom of removedRooms) {
-      const roomData = await getRoomData(removedRoom.type);
+    // Removing rooms with amount 0
+    updatedRooms = updatedRooms.filter((room) => room.amount > 0);
 
-      if (!roomData) {
-        throw new Error(`${removedRoom.type} - no such type of room in database`);
-      }
+    // Recalculating total price and capacity
+    let totalCapacity = 0;
+    let totalPrice = 0;
 
-      const increaseTotal = roomData.total + removedRoom.amount;
-
-      roomUpdates.push({
-        type: removedRoom.type,
-        newTotal: increaseTotal,
-      });
+    for (const room of updatedRooms) {
+      const roomData = await getRoomData(room.type);
+      totalCapacity += roomData.max_guests * room.amount;
+      totalPrice += roomData.price_per_night * room.amount * nights;
     }
-    /*     const removedRoomTypes = existingRooms.filter(
-      (r) => !rooms.find((room) => room.type === r.type),
-    );
-    for (const room of removedRoomTypes) {
-      const roomData = await getRoomData(room.type);
-      const roomAmountDiff = -room.roomAmount; // Negative difference for removed rooms
-
-      const changedTotal = roomData.total - roomAmountDiff; // Increase availability
-      roomUpdates.push({
-        type: room.type,
-        newTotal: changedTotal,
-      });
-    } */ /* Solution GPT  */
-
-    /*     for (const room of roomsFound) {
-      const roomData = await getRoomData(room.type);
-      const capacityCount = roomData.max_guests * room.amount;
-      totalCapacity += capacityCount;
-
-      const roomTypePrice = roomData.price_per_night * room.amount * nights;
-      totalPrice += roomTypePrice;
-    } */ /* old case */
-
-    // totalCapacity = totalCapacityOldOrder + totalPriceUpdateChanges;
 
     if (totalCapacity < guestAmount) {
       throw new Error(
@@ -150,26 +106,24 @@ exports.handler = async (event) => {
       );
     }
 
-    // const updatedRooms = [...roomsFound, ...rooms];
-
     const updateParams = {
       TableName: orderTable,
       Key: { orderId },
       UpdateExpression:
-        "SET guestAmount = :guestAmount, checkInDate = :checkInDate, checkOutDate = :checkOutDate, rooms =:rooms, totalPrice = :totalPrice ",
-      // ExpressionAttributeName:,
+        "SET guestAmount = :guestAmount, checkInDate = :checkInDate, checkOutDate = :checkOutDate, rooms = :rooms, totalPrice = :totalPrice",
       ExpressionAttributeValues: {
         ":guestAmount": guestAmount,
-        ":checkInDate": parseCheckInDate(checkInDate),
-        ":checkOutDate": parseCheckOutDate(checkOutDate),
+        ":checkInDate": parsedCheckInDate,
+        ":checkOutDate": parsedCheckOutDate,
         ":rooms": updatedRooms,
         ":totalPrice": totalPrice,
       },
       ReturnValues: "ALL_NEW",
     };
 
-    /* const updatedOrder = */ await db.send(new UpdateCommand(updateParams));
+    const updatedOrder = await db.send(new UpdateCommand(updateParams));
 
+    // Updating room totals
     for (const update of roomUpdates) {
       await db.send(
         new UpdateCommand({
@@ -181,27 +135,11 @@ exports.handler = async (event) => {
         }),
       );
     }
-    /*
-    for (const [type, existingAmount] of existingRoomTypes) {
-  if (!updatedRoomTypes.has(type)) {  // Checks if the room type exists in the old order but not in the updated one
-    const roomData = await getRoomData(type);
-    if (!roomData) {
-      throw new Error(`Room data not found for type: ${type}`);
-    }
 
-    const difference = -existingAmount;  // Set difference to negative, meaning rooms are "returned"
-    roomUpdates.push({
-      type,
-      newTotal: roomData.total - difference,  // Updates the room total
-      difference 
-    });
-  }
-}
-*/
     return apiResponse(200, {
       message: "Order updated successfully",
       orderId,
-      // ...updatedOrder.Attributes,
+      ...updatedOrder.Attributes,
     });
   } catch (error) {
     console.error("Error updating order:", error);
