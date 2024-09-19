@@ -20,13 +20,15 @@ exports.hander = async (event) => {
       },
     };
 
-    const result = await db.send(new GetCommand(params));
+    const order = await db.send(new GetCommand(params));
+
+    const guestAmountChanged = order.Item.guestAmount !== guestAmount;
 
     const updateParams = {
       TableName: orderTable,
       Key: { orderId },
       UpdateExpression:
-        "SET guestAmount = :guestAmount, rooms =:rooms,  checkInDate = :checkInDate, checkOutDate = :checkOutDate ",
+        "SET guestAmount = :guestAmount, rooms =:rooms,  checkInDate = :checkInDate, checkOutDate = :checkOutDate, totalPrice = :totalPrice ",
       // ExpressionAttributeName:,
       ExpressionAttributeValues: {
         ":guestAmount": guestAmount,

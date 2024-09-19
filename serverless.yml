@@ -69,7 +69,7 @@ functions:
     handler: functions/ChangeOrder/changeOrder.handler
     events:
       - httpApi:
-          path: /orders
+          path: /orders/{orderId}
           method: post
 
 resources:
