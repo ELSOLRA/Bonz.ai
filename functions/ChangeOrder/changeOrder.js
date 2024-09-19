@@ -34,8 +34,22 @@ exports.handler = async (event) => {
 
     const roomsInOrder = order.Item.rooms;
 
-    const roomsFound = roomsInOrder.filter((r) => r.type !== rooms.type);
-    console.log("roomsFound--------:", roomsFound);
+    const updatedRooms = roomsInOrder.map((existingRoom) => {
+      const updatedRoom = rooms.find((r) => r.type === existingRoom.type);
+      if (updatedRoom) {
+        return { ...existingRoom, amount: updatedRoom.amount };
+      }
+      return existingRoom;
+    });
+
+    rooms.forEach((newRoom) => {
+      if (!updatedRooms.some((r) => r.type === newRoom.type)) {
+        updatedRooms.push(newRoom);
+      }
+    });
+
+    // const roomsFound = roomsInOrder.filter((r) => r.type !== rooms.type);
+    // console.log("roomsFound--------:", roomsFound);
 
     const nights = nightsBetweenDates(
       parseCheckInDate(checkInDate),
@@ -47,8 +61,8 @@ exports.handler = async (event) => {
     // const bookingDetails = [];
     const roomUpdates = [];
 
-    for (const room of rooms) {
-      const orderRoomAmount = order.Item.rooms.find((r) => r.type === room.type)?.amount || 0;
+    for (const room of updatedRooms) {
+      const orderRoomAmount = roomsInOrder.find((r) => r.type === room.type)?.amount || 0;
       const roomAmountDiff = room.amount - orderRoomAmount;
 
       if (roomAmountDiff !== 0) {
@@ -85,15 +99,28 @@ exports.handler = async (event) => {
         });
       }
     }
+    /*     const removedRoomTypes = existingRooms.filter(
+      (r) => !rooms.find((room) => room.type === r.type),
+    );
+    for (const room of removedRoomTypes) {
+      const roomData = await getRoomData(room.type);
+      const roomAmountDiff = -room.roomAmount; // Negative difference for removed rooms
 
-    for (const room of roomsFound) {
+      const changedTotal = roomData.total - roomAmountDiff; // Increase availability
+      roomUpdates.push({
+        type: room.type,
+        newTotal: changedTotal,
+      });
+    } */ /* Solution GPT  */
+
+    /*     for (const room of roomsFound) {
       const roomData = await getRoomData(room.type);
       const capacityCount = roomData.max_guests * room.amount;
       totalCapacity += capacityCount;
 
       const roomTypePrice = roomData.price_per_night * room.amount * nights;
       totalPrice += roomTypePrice;
-    }
+    } */ /* old case */
 
     // totalCapacity = totalCapacityOldOrder + totalPriceUpdateChanges;
 
@@ -103,7 +130,7 @@ exports.handler = async (event) => {
       );
     }
 
-    const updatedRooms = [...roomsFound, ...rooms];
+    // const updatedRooms = [...roomsFound, ...rooms];
 
     const updateParams = {
       TableName: orderTable,
