@@ -1,5 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: randtest
+org:   # - provide you own serverless organisation name or delete org: to continue without it
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: Bonzai
 
