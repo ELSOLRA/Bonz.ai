@@ -1,136 +1,114 @@
 {
-	"info": {
-		"_postman_id": "751479de-40fe-4feb-860d-0f7d1d5da331",
-		"name": "group_examination_bonzai",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "33910593"
-	},
-	"item": [
-		{
-			"name": "Get a booking",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{base_aws_url}/orders/{orderid}",
-					"host": [
-						"{base_aws_url}"
-					],
-					"path": [
-						"orders",
-						"{orderid}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Make an order",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"name\":\"test\", \r\n    \"checkIn\": \"20270314\", \r\n    \"checkOut\":\"20270328\", \r\n    \"guestAmount\":6 ,\r\n    \"types\":[{\"type\": \"svit\", \"roomAmount\": 2}]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{base_aws_url}/book",
-					"host": [
-						"{base_aws_url}"
-					],
-					"path": [
-						"book"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Change booking",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \r\n    \"guestAmount\":14,\r\n    \"checkInDate\":\"20250428\",\r\n    \"checkOutDate\": \"20250505\",\r\n    \"rooms\": [{\"type\": \"dubbelrum\", \"amount\": 7}]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{base_aws_url}/orders/{orderid}",
-					"host": [
-						"{base_aws_url}"
-					],
-					"path": [
-						"orders",
-						"{orderid}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Cancel order",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"id\": \"cc76e07b-dd05-4a99-bb17-a9924489cb13\"\r\n \r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{base_aws_url}/cancel",
-					"host": [
-						"{base_aws_url}"
-					],
-					"path": [
-						"cancel"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all bookings",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{base_aws_url}/orders",
-					"host": [
-						"{base_aws_url}"
-					],
-					"path": [
-						"orders"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "751479de-40fe-4feb-860d-0f7d1d5da331",
+    "name": "group_examination_bonzai",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33910593"
+  },
+  "item": [
+    {
+      "name": "Get a booking",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{base_aws_url}/orders/{orderid}",
+          "host": ["{base_aws_url}"],
+          "path": ["orders", "{orderid}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Make an order",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\":\"test\", \r\n    \"checkIn\": \"20270314\", \r\n    \"checkOut\":\"20270328\", \r\n    \"guestAmount\":6 ,\r\n    \"types\":[{\"type\": \"svit\", \"roomAmount\": 2}]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{base_aws_url}/book",
+          "host": ["{base_aws_url}"],
+          "path": ["book"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change booking",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \r\n    \"guestAmount\":14,\r\n    \"checkInDate\":\"20250428\",\r\n    \"checkOutDate\": \"20250505\",\r\n    \"rooms\": [{\"type\": \"dubbelrum\", \"amount\": 7}]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{base_aws_url}/orders/{orderid}",
+          "host": ["{base_aws_url}"],
+          "path": ["orders", "{orderid}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel order",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"id\": \"cc76e07b-dd05-4a99-bb17-a9924489cb13\"\r\n \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{base_aws_url}/cancel",
+          "host": ["{base_aws_url}"],
+          "path": ["cancel"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get all bookings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{base_aws_url}/orders",
+          "host": ["{base_aws_url}"],
+          "path": ["orders"]
+        }
+      },
+      "response": []
+    }
+  ]
 }
