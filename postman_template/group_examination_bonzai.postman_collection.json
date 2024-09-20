@@ -24,9 +24,9 @@
           }
         },
         "url": {
-          "raw": "{base_aws_url}/orders/{orderid}",
-          "host": ["{base_aws_url}"],
-          "path": ["orders", "{orderid}"]
+          "raw": "{base_url}/orders/{id]",
+          "host": ["{base_url}"],
+          "path": ["orders", "{id]"]
         }
       },
       "response": []
@@ -38,7 +38,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"name\":\"test\", \r\n    \"checkIn\": \"20270314\", \r\n    \"checkOut\":\"20270328\", \r\n    \"guestAmount\":6 ,\r\n    \"types\":[{\"type\": \"svit\", \"roomAmount\": 2}]\r\n}",
+          "raw": "{\r\n    \"name\":\"test\", \r\n    \"checkInDate\": \"20270314\", \r\n    \"checkOutDate\":\"20270328\", \r\n    \"guestAmount\":3 ,\r\n    \"types\":[{\"type\": \"enkelrum\", \"amount\": 3}]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -46,8 +46,8 @@
           }
         },
         "url": {
-          "raw": "{base_aws_url}/book",
-          "host": ["{base_aws_url}"],
+          "raw": "{base_url}/book",
+          "host": ["{base_url}"],
           "path": ["book"]
         }
       },
@@ -68,9 +68,9 @@
           }
         },
         "url": {
-          "raw": "{base_aws_url}/orders/{orderid}",
-          "host": ["{base_aws_url}"],
-          "path": ["orders", "{orderid}"]
+          "raw": "{base_url}/orders/{id}",
+          "host": ["{base_url}"],
+          "path": ["orders", "{id}"]
         }
       },
       "response": []
@@ -82,7 +82,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"id\": \"cc76e07b-dd05-4a99-bb17-a9924489cb13\"\r\n \r\n}",
+          "raw": "{\r\n    \"id\": \"a5ae87df-9ccd-4161-bd01-4560ea956e91\"\r\n \r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -90,8 +90,8 @@
           }
         },
         "url": {
-          "raw": "{base_aws_url}/cancel",
-          "host": ["{base_aws_url}"],
+          "raw": "{base_url}/cancel",
+          "host": ["{base_url}"],
           "path": ["cancel"]
         }
       },
@@ -103,8 +103,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{base_aws_url}/orders",
-          "host": ["{base_aws_url}"],
+          "raw": "{base_url}/orders",
+          "host": ["{base_url}"],
           "path": ["orders"]
         }
       },
