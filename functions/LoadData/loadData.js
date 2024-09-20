@@ -1,49 +1,52 @@
 const db = require("../../services/db");
 const roomsData = require("../../data/rooms.json");
-// const uuid = require("uuid");
-const { PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { PutCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
 const { apiResponse } = require("../../utils/apiResponse");
 
-exports.handler = async (event) => {
+exports.handler = async () => {
   const roomTable = process.env.ROOM_TABLE;
-  // const roomId = uuid.v4();
+
   try {
-    for (const rooms of roomsData) {
+    // Check if the table already has data
+    const existingRooms = await db.send(
+      new ScanCommand({
+        TableName: roomTable,
+        Limit: 1, // Only need to know if any data exists
+      }),
+    );
+
+    if (existingRooms.Items && existingRooms.Items.length > 0) {
+      return apiResponse(200, {
+        success: true,
+        message: "Data already exists. No new data loaded.",
+      });
+    }
+
+    // If no data exists, load the room data
+    for (const room of roomsData) {
       await db.send(
         new PutCommand({
           TableName: roomTable,
           Item: {
-            type: rooms.type,
-            price_per_night: rooms.price_per_night,
-            max_guests: rooms.max_guests,
-            total: rooms.total,
+            type: room.type,
+            price_per_night: room.price_per_night,
+            max_guests: room.max_guests,
+            total: room.total,
           },
         }),
       );
     }
-    /*
-    const putParams = roomsData.map((item) => ({
-      putRequest: {
-        TableName: roomTable,
-        Item: {
-          type: item.type,
-          price_per_night: item.price_per_night,
-          max_number_of_people: item.max_guests,
-          total: item.total,
-        },
-      },
-    }));
-*/
-    //await db.send(new PutCommand(putParams));
+
     return apiResponse(201, {
       success: true,
-      message: "data loaded successfully",
+      message: "Data loaded successfully",
     });
   } catch (error) {
+    console.error("Error loading data:", error);
     return apiResponse(500, {
       success: false,
-      message: "Failed to load",
-      error: error,
+      message: "Failed to load data",
+      error: error.message,
     });
   }
 };

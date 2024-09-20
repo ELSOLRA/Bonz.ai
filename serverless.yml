@@ -101,3 +101,11 @@ resources:
           # - AttributeName: roomId
           #   KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-scriptable-plugin
+
+custom:
+  scripts:
+    hooks:
+      after:deploy:finalize: sls invoke -f LoadData
