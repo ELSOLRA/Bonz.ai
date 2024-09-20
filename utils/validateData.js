@@ -1,14 +1,14 @@
 //both functions to check correct format in body
 
-const validateOrder = (name, checkIn, checkOut, guestAmount, types) => {
+const validateOrder = (name, checkInDate, checkOutDate, guestAmount, types) => {
   const dateRegex = /^\d{8}$/;
   if (
     typeof name !== "string" ||
-    !dateRegex.test(checkIn) ||
-    !dateRegex.test(checkOut) ||
+    !dateRegex.test(checkInDate) ||
+    !dateRegex.test(checkOutDate) ||
     typeof guestAmount !== "number" ||
     !Array.isArray(types) ||
-    types.some((type) => typeof type.type !== "string" || typeof type.roomAmount !== "number")
+    types.some((type) => typeof type.type !== "string" || typeof type.amount !== "number")
   ) {
     throw new Error("Input validation error");
   }

@@ -12,10 +12,10 @@ const { validateOrder } = require("../../utils/validateData")
 
 exports.handler = async (event) => {
   try {
-    const { name, checkIn, checkOut, guestAmount, types } = JSON.parse(event.body);
+    const { name, checkInDate, checkOutDate, guestAmount, types } = JSON.parse(event.body);
 
     //validate order
-    validateOrder(name, checkIn, checkOut, guestAmount, types);
+    validateOrder(name, checkInDate, checkOutDate, guestAmount, types);
 
     const roomTable = process.env.ROOM_TABLE;
     const orderTable = process.env.ORDER_TABLE;
@@ -25,19 +25,19 @@ exports.handler = async (event) => {
     const bookingDetails = [];
     const roomUpdates = [];
 
-    const checkInDate = parseCheckInDate(checkIn);
+    const checkIn = parseCheckInDate(checkInDate);
 
 
-    const checkOutDate = parseCheckOutDate(checkOut);
+    const checkOut = parseCheckOutDate(checkOutDate);
 
     // calculates spent nights 
-    const nights = nightsBetweenDates(checkInDate, checkOutDate);
+    const nights = nightsBetweenDates(checkIn, checkOut);
 
 
     for (const roomType of types) {
       const roomData = await getRoomData(roomType.type);
 
-      if (!roomData || !roomType.roomAmount) {
+      if (!roomData || !roomType.amount) {
         throw new Error(`Invalid room type - ${roomType.type}, or no amount provided`);
       }
 
@@ -45,20 +45,20 @@ exports.handler = async (event) => {
         throw new Error(`Invalid max_guests value for ${roomType.type}: ${roomData.max_guests}`);
       }
 
-      if (isNaN(roomType.roomAmount)) {
-        throw new Error(`Invalid roomAmount for ${roomType.type}: ${roomType.roomAmount}`);
+      if (isNaN(roomType.amount)) {
+        throw new Error(`Invalid room amount for ${roomType.type}: ${roomType.amount}`);
       }
 
-      if (roomData.total < roomType.roomAmount) {
+      if (roomData.total < roomType.amount) {
         throw new Error(
-          `Not enough ${roomType.type} available. Requested: ${roomType.roomAmount}, Available: ${roomData.total}`,
+          `Not enough ${roomType.type} available. Requested: ${roomType.amount}, Available: ${roomData.total}`,
         );
       }
 
-      const capacityIncrement = roomData.max_guests * roomType.roomAmount;
+      const capacityIncrement = roomData.max_guests * roomType.amount;
 
       totalCapacity += capacityIncrement;
-      const roomTypePrice = roomData.price_per_night * roomType.roomAmount * nights;
+      const roomTypePrice = roomData.price_per_night * roomType.amount * nights;
 
 
       totalPrice += roomTypePrice;
@@ -66,14 +66,14 @@ exports.handler = async (event) => {
 
       bookingDetails.push({
         type: roomType.type,
-        amount: roomType.roomAmount,
+        amount: roomType.amount,
         pricePerNight: roomData.price_per_night,
         totalPrice: roomTypePrice,
       });
 
       roomUpdates.push({
         type: roomType.type,
-        newTotal: roomData.total - roomType.roomAmount,
+        newTotal: roomData.total - roomType.amount,
       });
     }
 
@@ -95,11 +95,9 @@ exports.handler = async (event) => {
     const newBooking = {
       orderId,
       name,
-      checkInDate,
-      checkOutDate,
-
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
       guestAmount,
-
       totalPrice,
       rooms: bookingDetails.map((room) => ({
         type: room.type,
