@@ -21,7 +21,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
-            # - dynamodb:BatchWriteItem
+            
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ROOM_TABLE}
             - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}
@@ -37,10 +37,6 @@ build:
 functions:
   LoadData:
     handler: functions/LoadData/loadData.handler
-    events:
-      - httpApi:
-          path: /load
-          method: post
   PlaceOrder:
     handler: functions/PlaceOrder/placeOrder.handler
     events:
@@ -93,11 +89,15 @@ resources:
         AttributeDefinitions:
           - AttributeName: orderId
             AttributeType: S
-          # - AttributeName: roomId
-          #   AttributeType: S
         KeySchema:
           - AttributeName: orderId
             KeyType: HASH
-          # - AttributeName: roomId
-          #   KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-scriptable-plugin
+
+custom:
+  scriptable:
+    hooks:
+      after:deploy:deploy: serverless invoke -f LoadData

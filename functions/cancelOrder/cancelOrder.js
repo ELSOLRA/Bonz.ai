@@ -1,7 +1,7 @@
 const db = require("../../services/db.js");
 const { DeleteCommand, GetCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
 const { apiResponse } = require("../../utils/apiResponse.js");
-const { nightsBetweenDates } = require("../../services/timeService.js");
+const { nightsBetweenDates } = require("../../utils/timeDateOperations.js");
 
 exports.handler = async (event) => {
   const orderTable = process.env.ORDER_TABLE;
@@ -9,6 +9,7 @@ exports.handler = async (event) => {
   const { id } = JSON.parse(event.body);
 
   try {
+    // Fetch the order from the database using the order ID
     let room = await db.send(
       new GetCommand({
         TableName: orderTable,
@@ -18,14 +19,13 @@ exports.handler = async (event) => {
       }),
     );
 
+    if (!room) {
+      throw new Error(`Order with ID ${id} not found`);
+    }
+
     const { checkInDate, rooms } = room.Item;
-
-    console.log("checkInDate ----:", checkInDate);
-
+    //Get todays date to compare with the checkin date to determine if the booking can be canceled.
     let cancelDate = new Date().toISOString();
-
-    console.log("cancleDate-----:", cancelDate);
-
     let nights = nightsBetweenDates(cancelDate, checkInDate);
 
     if (nights < 2) {
@@ -33,7 +33,7 @@ exports.handler = async (event) => {
         message: "The booking cannot be canceled, less than two days before checkout date.",
       });
     }
-
+    // Iterate over the booked rooms to update the room availability
     for (const bookedRooms of rooms) {
       const { type, amount } = bookedRooms;
       await db.send(
@@ -46,7 +46,8 @@ exports.handler = async (event) => {
         }),
       );
     }
-
+    
+    //// Delete the order from the order table
     let response = await db.send(
       new DeleteCommand({
         TableName: orderTable,
@@ -55,7 +56,8 @@ exports.handler = async (event) => {
         },
       }),
     );
-
+    
+    // Check if the delete operation was successful
     if (response) {
       return apiResponse(200, { message: "Booking canceled successfully." });
     } else {

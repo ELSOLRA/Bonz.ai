@@ -1,5 +1,5 @@
 const { GetCommand } = require("@aws-sdk/lib-dynamodb");
-const db = require("./db");
+const db = require("../services/db");
 
 exports.getRoomData = async (type) => {
   const params = {
