@@ -1,5 +1,5 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: tobiasa123
+org: randtest
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: Bonzai
 
@@ -21,7 +21,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
-            
+
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ROOM_TABLE}
             - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.ORDER_TABLE}
