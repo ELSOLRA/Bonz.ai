@@ -1,3 +1,4 @@
+
 const parseCheckInDate = (dateString) => {
   const date = new Date(
     parseInt(dateString.slice(0, 4)), // year
@@ -7,8 +8,7 @@ const parseCheckInDate = (dateString) => {
     0,
     0, // 13:00:00
   );
-  console.log("date to convert--:", date);
-  console.log("date to convert-- to Iso:", date.toISOString());
+  
   return date.toISOString();
 };
 
@@ -21,8 +21,7 @@ const parseCheckOutDate = (dateString) => {
     0,
     0, // 11:00:00
   );
-  console.log("date to convert--:", date);
-  console.log("date to convert-- to Iso:", date.toISOString());
+ 
   return date.toISOString();
 };
 
@@ -40,10 +39,6 @@ const nightsBetweenDates = (checkInDateISO, checkOutDateISO) => {
   //  milliseconds to days (1 day = 24 * 60 * 60 * 1000 ms)
   const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
 
-  console.log("checkInDate:", checkInDate);
-  console.log("checkOutDate:", checkOutDate);
-  console.log("diffInMs:", diffInMs);
-  console.log("diffInDays:", diffInDays);
   return Math.ceil(diffInDays);
 };
 

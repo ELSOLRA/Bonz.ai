@@ -1,3 +1,5 @@
+
+//Used to send a response.
 exports.apiResponse = (status, data = {}) => {
   return {
     statusCode: status,

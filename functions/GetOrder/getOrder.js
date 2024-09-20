@@ -7,6 +7,7 @@ exports.handler = async (event) => {
   const { orderId } = event.pathParameters;
 
   try {
+    // Set up parameters for the GetCommand to fetch the order
     const params = {
       TableName: orderTable,
       Key: {
@@ -16,6 +17,7 @@ exports.handler = async (event) => {
 
     const result = await db.send(new GetCommand(params));
 
+    // Check if the order was found; if not, return a 400 respons
     if (!result.Item) {
       return {
         statusCode: 400,
@@ -24,11 +26,8 @@ exports.handler = async (event) => {
     }
 
     const { totalPrice, ...orderDetails } = result.Item;
-    //       Bokningsnummer
-    // In-och utcheckningsdatum
-    // Antal gäster
-    // Antalet rum
-    // Namn på den som bokade rummet
+    
+    // Return a successful response with the order details
     return apiResponse(200, {
       message: "Order displayed succesfully",
 

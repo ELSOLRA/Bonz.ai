@@ -6,6 +6,7 @@ exports.handler = async (event) => {
   const orderTable = process.env.ORDER_TABLE;
 
   try {
+    // Execute a ScanCommand to fetch all items from the order table
     const result = await db.send(new ScanCommand({ TableName: orderTable }));
 
     return apiResponse(200, {
