@@ -19,7 +19,7 @@ exports.handler = async (event) => {
       }),
     );
 
-    if (!room) {
+    if (!room.Item) {
       throw new Error(`Order with ID ${id} not found`);
     }
 
@@ -46,7 +46,7 @@ exports.handler = async (event) => {
         }),
       );
     }
-    
+
     //// Delete the order from the order table
     let response = await db.send(
       new DeleteCommand({
@@ -56,7 +56,7 @@ exports.handler = async (event) => {
         },
       }),
     );
-    
+
     // Check if the delete operation was successful
     if (response) {
       return apiResponse(200, { message: "Booking canceled successfully." });
